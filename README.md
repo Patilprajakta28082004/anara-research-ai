@@ -47,7 +47,7 @@ uvicorn app.main:app --reload --port 8000
 Then open `frontend/index.html` directly in a browser (it talks to
 `http://localhost:8000`).
 
-## Things worth knowing for an interview walkthrough
+## Things worth knowing 
 
 - **Why CRAG instead of plain RAG**: plain RAG generates from whatever it
   retrieves, even if it's irrelevant. CRAG adds a grading step so the
