@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Anara ResearchAI — Research Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,72,400;0,72,500;0,72,600;1,72,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F3EA;
+    --paper-raised:#FFFEFA;
+    --ink:#211F1A;
+    --ink-soft:#5B5648;
+    --line:#D9D2BD;
+    --blue:#2451B4;
+    --blue-dim:#E7EDF9;
+    --highlight:#F2C744;
+    --error:#A23B2A;
+    --good:#2E6B4F;
+    --radius:3px;
+    --shadow-card: 0 1px 0 rgba(33,31,26,0.05), 0 8px 18px -10px rgba(33,31,26,0.25);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(33,31,26,0.05) 1px, transparent 0);
+    background-size: 22px 22px;
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .wrap{
+    max-width:920px;
+    margin:0 auto;
+    padding:48px 24px 80px;
+  }
+
+  /* ---------- Header / thesis ---------- */
+  header.desk{
+    border-bottom:2px solid var(--ink);
+    padding-bottom:22px;
+    margin-bottom:34px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:24px;
+    flex-wrap:wrap;
+  }
+  .desk-eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin:0 0 6px;
+  }
+  .desk h1{
+    font-family:'Newsreader', serif;
+    font-weight:600;
+    font-size:42px;
+    line-height:1.05;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .desk h1 em{
+    font-style:italic;
+    color:var(--blue);
+  }
+  .desk-meta{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    text-align:right;
+    line-height:1.6;
+  }
+  .pulse-dot{
+    display:inline-block;
+    width:7px;height:7px;border-radius:50%;
+    background:var(--good);
+    margin-right:6px;
+    box-shadow:0 0 0 0 rgba(46,107,79,.5);
+    animation:pulse 2.2s infinite;
+  }
+  .pulse-dot.off{background:var(--error); animation:none;}
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(46,107,79,.45);}
+    70%{box-shadow:0 0 0 6px rgba(46,107,79,0);}
+    100%{box-shadow:0 0 0 0 rgba(46,107,79,0);}
+  }
+
+  /* ---------- Folder tabs ---------- */
+  .tabs{
+    display:flex;
+    gap:4px;
+    margin-bottom:0;
+  }
+  .tab{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    background:#EAE5D5;
+    color:var(--ink-soft);
+    border:1px solid var(--line);
+    border-bottom:none;
+    padding:12px 18px 10px;
+    border-radius:6px 6px 0 0;
+    cursor:pointer;
+    position:relative;
+    top:1px;
+    transition:background .15s, color .15s;
+  }
+  .tab span.num{color:var(--ink-soft); margin-right:7px; opacity:.6;}
+  .tab:hover{background:#F0EBDC;}
+  .tab.active{
+    background:var(--paper-raised);
+    color:var(--ink);
+    border-color:var(--ink);
+    border-bottom:1px solid var(--paper-raised);
+  }
+  .tab.active span.num{color:var(--blue); opacity:1;}
+
+  .card{
+    background:var(--paper-raised);
+    border:1px solid var(--ink);
+    border-radius:0 6px 6px 6px;
+    box-shadow:var(--shadow-card);
+    padding:32px;
+  }
+  .panel{display:none;}
+  .panel.active{display:block; animation:fadeIn .25s ease;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(3px);} to{opacity:1; transform:translateY(0);}}
+
+  .panel h2{
+    font-family:'Newsreader', serif;
+    font-size:22px;
+    font-weight:600;
+    margin:0 0 4px;
+  }
+  .panel .sub{
+    color:var(--ink-soft);
+    font-size:13.5px;
+    margin:0 0 22px;
+    max-width:540px;
+  }
+
+  /* ---------- Inputs ---------- */
+  label.field-label{
+    display:block;
+    font-family:'JetBrains Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:8px;
+  }
+  input[type=text]{
+    width:100%;
+    font-family:'Inter',sans-serif;
+    font-size:15px;
+    padding:13px 14px;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    background:var(--paper);
+    color:var(--ink);
+    outline:none;
+    transition:border-color .15s, background .15s;
+  }
+  input[type=text]:focus{border-color:var(--blue); background:#fff;}
+
+  .row{display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;}
+  .row > div{flex:1; min-width:220px;}
+
+  button.go{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    background:var(--ink);
+    color:var(--paper-raised);
+    border:none;
+    padding:13px 20px;
+    border-radius:var(--radius);
+    cursor:pointer;
+    transition:background .15s, transform .1s;
+    white-space:nowrap;
+  }
+  button.go:hover{background:var(--blue);}
+  button.go:active{transform:scale(.98);}
+  button.go:disabled{background:#B8B2A0; cursor:not-allowed;}
+
+  /* ---------- Dropzone ---------- */
+  .dropzone{
+    border:1.5px dashed var(--line);
+    border-radius:var(--radius);
+    padding:30px 20px;
+    text-align:center;
+    background:var(--paper);
+    cursor:pointer;
+    transition:border-color .15s, background .15s;
+  }
+  .dropzone.drag{border-color:var(--blue); background:var(--blue-dim);}
+  .dropzone p{margin:4px 0; font-size:13.5px; color:var(--ink-soft);}
+  .dropzone strong{color:var(--ink); font-weight:600;}
+  .dropzone .fname{
+    margin-top:10px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color:var(--blue);
+  }
+  input[type=file]{display:none;}
+
+  /* ---------- Status / messages ---------- */
+  .status-line{
+    margin-top:18px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12.5px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:var(--ink-soft);
+  }
+  .status-line.err{color:var(--error);}
+  .status-line.ok{color:var(--good);}
+  .spinner{
+    width:11px;height:11px;border-radius:50%;
+    border:2px solid var(--line); border-top-color:var(--blue);
+    animation:spin .7s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* ---------- Answer block ---------- */
+  .answer-block{
+    margin-top:24px;
+    border-top:1px solid var(--line);
+    padding-top:20px;
+  }
+  .answer-block .tag{
+    font-family:'JetBrains Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:10px;
+  }
+  .answer-text{
+    font-family:'Newsreader', serif;
+    font-size:18px;
+    line-height:1.55;
+    color:var(--ink);
+  }
+  .sources{margin-top:18px; display:flex; flex-direction:column; gap:8px;}
+  .source-pill{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-left:3px solid var(--blue);
+    padding:8px 10px;
+    border-radius:2px;
+    color:var(--ink-soft);
+  }
+
+  /* ---------- Citation index cards ---------- */
+  .results-meta{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin:20px 0 14px;
+    display:flex;
+    justify-content:space-between;
+  }
+  .cards{display:flex; flex-direction:column; gap:14px;}
+  .citation{
+    position:relative;
+    background:
+      linear-gradient(135deg, transparent 50%, var(--paper) 50%) top right / 18px 18px no-repeat,
+      var(--paper-raised);
+    border:1px solid var(--line);
+    border-left:4px solid var(--ink);
+    border-radius:0 var(--radius) var(--radius) var(--radius);
+    padding:16px 20px 16px 18px;
+    box-shadow:var(--shadow-card);
+    transition:transform .15s, box-shadow .15s;
+  }
+  .citation:hover{transform:translateY(-2px); box-shadow:0 14px 26px -14px rgba(33,31,26,0.35);}
+  .citation.arXiv{border-left-color:var(--blue);}
+  .citation.Semantic.Scholar, .citation[data-source="Semantic Scholar"]{border-left-color:var(--good);}
+  .cit-top{display:flex; justify-content:space-between; gap:14px; align-items:flex-start;}
+  .cit-title{
+    font-family:'Newsreader', serif;
+    font-weight:600;
+    font-size:16.5px;
+    line-height:1.3;
+    margin:0;
+  }
+  .cit-title a{color:var(--ink); text-decoration:none; border-bottom:1px solid var(--line);}
+  .cit-title a:hover{border-color:var(--ink);}
+  .cit-badge{
+    font-family:'JetBrains Mono', monospace;
+    font-size:10px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    padding:3px 8px;
+    border-radius:20px;
+    background:var(--blue-dim);
+    color:var(--blue);
+    white-space:nowrap;
+    flex-shrink:0;
+  }
+  .citation[data-source="Semantic Scholar"] .cit-badge{background:#E5F1EB; color:var(--good);}
+  .cit-meta{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-top:6px;
+  }
+  .cit-abstract{
+    font-size:13.5px;
+    color:var(--ink-soft);
+    line-height:1.5;
+    margin-top:10px;
+    display:-webkit-box;
+    -webkit-line-clamp:3;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+  .cit-links{margin-top:10px; display:flex; gap:14px;}
+  .cit-links a{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    color:var(--blue);
+    text-decoration:none;
+  }
+  .cit-links a:hover{text-decoration:underline;}
+
+  .empty{
+    text-align:center;
+    padding:30px 10px;
+    color:var(--ink-soft);
+    font-size:13.5px;
+  }
+
+  footer{
+    text-align:center;
+    margin-top:46px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+  }
+
+  @media (max-width:600px){
+    .desk h1{font-size:30px;}
+    .card{padding:22px;}
+    .tab{padding:10px 12px 9px; font-size:10.5px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="desk">
+    <div>
+      <p class="desk-eyebrow">Corrective RAG · Research Workbench</p>
+      <h1>Anara <em>ResearchAI</em></h1>
+    </div>
+    <div class="desk-meta">
+      <div><span class="pulse-dot" id="statusDot"></span><span id="statusText">checking API…</span></div>
+      <div id="apiBaseLabel">localhost:8000</div>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <div class="tab active" data-panel="ingest"><span class="num">01</span>Ingest PDF</div>
+    <div class="tab" data-panel="ask"><span class="num">02</span>Ask a Question</div>
+    <div class="tab" data-panel="search"><span class="num">03</span>Search Literature</div>
+  </nav>
+
+  <div class="card">
+
+    <!-- ============ PANEL 1: INGEST ============ -->
+    <section class="panel active" id="panel-ingest">
+      <h2>Add a paper to your desk</h2>
+      <p class="sub">Upload a PDF. It's split into chunks, embedded, and stored in ChromaDB so you can ask grounded questions about it later.</p>
+
+      <div class="dropzone" id="dropzone">
+        <p><strong>Click to choose a PDF</strong> or drag one here</p>
+        <p>Max 20MB · text-based PDFs only</p>
+        <div class="fname" id="fname"></div>
+      </div>
+      <input type="file" id="fileInput" accept="application/pdf" />
+
+      <div style="margin-top:18px;">
+        <button class="go" id="uploadBtn" disabled>Index this PDF</button>
+      </div>
+
+      <div class="status-line" id="ingestStatus" style="display:none;"></div>
+    </section>
+
+    <!-- ============ PANEL 2: ASK ============ -->
+    <section class="panel" id="panel-ask">
+      <h2>Ask your indexed papers</h2>
+      <p class="sub">Runs the CRAG graph: retrieve → grade relevance → (web fallback if needed) → generate a grounded answer with sources.</p>
+
+      <div class="row">
+        <div>
+          <label class="field-label">Question</label>
+          <input type="text" id="askInput" placeholder="e.g. What method did the authors use for evaluation?" />
+        </div>
+        <button class="go" id="askBtn">Ask</button>
+      </div>
+
+      <div class="status-line" id="askStatus" style="display:none;"></div>
+
+      <div class="answer-block" id="answerBlock" style="display:none;">
+        <p class="tag">Generated answer</p>
+        <p class="answer-text" id="answerText"></p>
+        <div class="sources" id="answerSources"></div>
+      </div>
+    </section>
+
+    <!-- ============ PANEL 3: SEARCH ============ -->
+    <section class="panel" id="panel-search">
+      <h2>Search the literature</h2>
+      <p class="sub">Queries arXiv and Semantic Scholar concurrently — useful for finding new papers to ingest above.</p>
+
+      <div class="row">
+        <div>
+          <label class="field-label">Topic or keywords</label>
+          <input type="text" id="searchInput" placeholder="e.g. retrieval augmented generation" />
+        </div>
+        <button class="go" id="searchBtn">Search</button>
+      </div>
+
+      <div class="status-line" id="searchStatus" style="display:none;"></div>
+      <div class="results-meta" id="resultsMeta" style="display:none;"></div>
+      <div class="cards" id="resultsCards"></div>
+    </section>
+
+  </div>
+
+  <footer>Anara ResearchAI — Corrective RAG demo · built with FastAPI, LangGraph &amp; ChromaDB</footer>
+</div>
+
+<script>
+const API_BASE = "http://localhost:8000";
+document.getElementById("apiBaseLabel").textContent = API_BASE.replace("http://","");
+
+/* ---------------- Tabs ---------------- */
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+    tab.classList.add("active");
+    document.getElementById("panel-" + tab.dataset.panel).classList.add("active");
+  });
+});
+
+/* ---------------- Health check ---------------- */
+async function checkHealth(){
+  const dot = document.getElementById("statusDot");
+  const text = document.getElementById("statusText");
+  try{
+    const res = await fetch(`${API_BASE}/`, { signal: AbortSignal.timeout(4000) });
+    if(!res.ok) throw new Error();
+    dot.classList.remove("off");
+    text.textContent = "API connected";
+  }catch(e){
+    dot.classList.add("off");
+    text.textContent = "API unreachable — is the backend running?";
+  }
+}
+checkHealth();
+
+/* ---------------- Helpers ---------------- */
+function setStatus(el, message, kind){
+  el.style.display = "flex";
+  el.className = "status-line" + (kind ? " " + kind : "");
+  el.innerHTML = kind === "loading"
+    ? `<span class="spinner"></span><span>${message}</span>`
+    : `<span>${message}</span>`;
+}
+function escapeHtml(str){
+  const d = document.createElement("div");
+  d.textContent = str ?? "";
+  return d.innerHTML;
+}
+
+/* ---------------- PANEL 1: Ingest ---------------- */
+const dropzone = document.getElementById("dropzone");
+const fileInput = document.getElementById("fileInput");
+const uploadBtn = document.getElementById("uploadBtn");
+const ingestStatus = document.getElementById("ingestStatus");
+let selectedFile = null;
+
+dropzone.addEventListener("click", () => fileInput.click());
+["dragenter","dragover"].forEach(evt =>
+  dropzone.addEventListener(evt, e => { e.preventDefault(); dropzone.classList.add("drag"); })
+);
+["dragleave","drop"].forEach(evt =>
+  dropzone.addEventListener(evt, e => { e.preventDefault(); dropzone.classList.remove("drag"); })
+);
+dropzone.addEventListener("drop", e => {
+  if(e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener("change", e => {
+  if(e.target.files.length) handleFile(e.target.files[0]);
+});
+
+function handleFile(file){
+  if(file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")){
+    setStatus(ingestStatus, "Please choose a PDF file.", "err");
+    return;
+  }
+  selectedFile = file;
+  document.getElementById("fname").textContent = `${file.name} (${(file.size/1024/1024).toFixed(2)} MB)`;
+  uploadBtn.disabled = false;
+  ingestStatus.style.display = "none";
+}
+
+uploadBtn.addEventListener("click", async () => {
+  if(!selectedFile) return;
+  uploadBtn.disabled = true;
+  setStatus(ingestStatus, "Extracting text, chunking, and embedding…", "loading");
+
+  const fd = new FormData();
+  fd.append("file", selectedFile);
+
+  try{
+    const res = await fetch(`${API_BASE}/api/rag/ingest`, { method: "POST", body: fd });
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.detail || "Upload failed");
+    setStatus(ingestStatus, `Indexed "${data.filename}" — ${data.chunks_indexed} chunks stored.`, "ok");
+  }catch(err){
+    setStatus(ingestStatus, "Error: " + err.message, "err");
+  }finally{
+    uploadBtn.disabled = false;
+  }
+});
+
+/* ---------------- PANEL 2: Ask ---------------- */
+const askInput = document.getElementById("askInput");
+const askBtn = document.getElementById("askBtn");
+const askStatus = document.getElementById("askStatus");
+const answerBlock = document.getElementById("answerBlock");
+
+async function runAsk(){
+  const q = askInput.value.trim();
+  if(!q) return setStatus(askStatus, "Type a question first.", "err");
+
+  answerBlock.style.display = "none";
+  askBtn.disabled = true;
+  setStatus(askStatus, "Retrieving context and generating an answer…", "loading");
+
+  try{
+    const res = await fetch(`${API_BASE}/api/rag/query`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: q })
+    });
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.detail || "Query failed");
+
+    askStatus.style.display = "none";
+    document.getElementById("answerText").textContent = data.answer;
+    const srcEl = document.getElementById("answerSources");
+    srcEl.innerHTML = "";
+    (data.sources || []).forEach(s => {
+      const pill = document.createElement("div");
+      pill.className = "source-pill";
+      pill.textContent = s.source ? `${s.source}${s.chunk_index !== undefined ? " · chunk " + s.chunk_index : ""}` : JSON.stringify(s);
+      srcEl.appendChild(pill);
+    });
+    answerBlock.style.display = "block";
+  }catch(err){
+    setStatus(askStatus, "Error: " + err.message, "err");
+  }finally{
+    askBtn.disabled = false;
+  }
+}
+askBtn.addEventListener("click", runAsk);
+askInput.addEventListener("keydown", e => { if(e.key === "Enter") runAsk(); });
+
+/* ---------------- PANEL 3: Search ---------------- */
+const searchInput = document.getElementById("searchInput");
+const searchBtn = document.getElementById("searchBtn");
+const searchStatus = document.getElementById("searchStatus");
+const resultsMeta = document.getElementById("resultsMeta");
+const resultsCards = document.getElementById("resultsCards");
+
+async function runSearch(){
+  const q = searchInput.value.trim();
+  if(!q) return setStatus(searchStatus, "Type a topic to search.", "err");
+
+  resultsMeta.style.display = "none";
+  resultsCards.innerHTML = "";
+  searchBtn.disabled = true;
+  setStatus(searchStatus, "Querying arXiv and Semantic Scholar…", "loading");
+
+  try{
+    const res = await fetch(`${API_BASE}/api/research/search?query=${encodeURIComponent(q)}&limit=10`);
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.detail || "Search failed");
+
+    searchStatus.style.display = "none";
+
+    if(!data.results || data.results.length === 0){
+      resultsCards.innerHTML = `<div class="empty">No results for "${escapeHtml(q)}". Try a broader term.</div>`;
+      return;
+    }
+
+    resultsMeta.style.display = "flex";
+    resultsMeta.innerHTML = `<span>${data.count} result${data.count===1?"":"s"} for "${escapeHtml(q)}"</span><span>arXiv + Semantic Scholar</span>`;
+
+    data.results.forEach(p => {
+      const card = document.createElement("div");
+      card.className = "citation";
+      card.setAttribute("data-source", p.source);
+      const authors = (p.authors || []).filter(Boolean).slice(0,4).join(", ") || "Unknown authors";
+      card.innerHTML = `
+        <div class="cit-top">
+          <p class="cit-title"><a href="${p.url || '#'}" target="_blank" rel="noopener">${escapeHtml(p.title || "Untitled")}</a></p>
+          <span class="cit-badge">${escapeHtml(p.source || "")}</span>
+        </div>
+        <div class="cit-meta">${escapeHtml(authors)} · ${escapeHtml(p.year || "Unknown")}</div>
+        <div class="cit-abstract">${escapeHtml(p.abstract || "No abstract available.")}</div>
+        <div class="cit-links">
+          ${p.url ? `<a href="${p.url}" target="_blank" rel="noopener">View paper →</a>` : ""}
+          ${p.pdf_url ? `<a href="${p.pdf_url}" target="_blank" rel="noopener">PDF →</a>` : ""}
+        </div>
+      `;
+      resultsCards.appendChild(card);
+    });
+  }catch(err){
+    setStatus(searchStatus, "Error: " + err.message, "err");
+  }finally{
+    searchBtn.disabled = false;
+  }
+}
+searchBtn.addEventListener("click", runSearch);
+searchInput.addEventListener("keydown", e => { if(e.key === "Enter") runSearch(); });
+</script>
+</body>
+</html>
